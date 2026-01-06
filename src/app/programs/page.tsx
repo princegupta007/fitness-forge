@@ -13,7 +13,7 @@ export const metadata = {
 const ALL_PROGRAMS_QUERY = `*[_type == "program"] | order(title asc)`
 
 export default async function ProgramsPage() {
-  const programs = await sanityFetch<Program[]>({ query: ALL_PROGRAMS_QUERY })
+  const programs = (await sanityFetch<Program[]>({ query: ALL_PROGRAMS_QUERY })) || []
 
   return (
     <div className="pt-20">

@@ -26,9 +26,10 @@ export async function sanityFetch<QueryResponse>({
   query: string
   params?: Record<string, unknown>
   tags?: string[]
-}) {
+}): Promise<QueryResponse | null> {
   if (projectId === 'unconfigured') {
-    throw new Error('NEXT_PUBLIC_SANITY_PROJECT_ID is not configured')
+    console.warn('Sanity project ID is not configured. returning null for query:', query)
+    return null
   }
 
   return client.fetch<QueryResponse>(query, params, {

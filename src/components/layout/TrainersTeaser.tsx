@@ -10,7 +10,7 @@ import { Users } from 'lucide-react'
 const TRAINERS_QUERY = `*[_type == "trainer"][0...3]`
 
 export default async function TrainersTeaser() {
-  const trainers = await sanityFetch<Trainer[]>({ query: TRAINERS_QUERY })
+  const trainers = (await sanityFetch<Trainer[]>({ query: TRAINERS_QUERY })) || []
 
   return (
     <Section className="bg-surface">

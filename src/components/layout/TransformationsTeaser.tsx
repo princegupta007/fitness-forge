@@ -9,7 +9,7 @@ import { Sparkles } from 'lucide-react'
 const TRANSFORMATIONS_QUERY = `*[_type == "transformation"][0...5]`
 
 export default async function TransformationsTeaser() {
-  const transformations = await sanityFetch<Transformation[]>({ query: TRANSFORMATIONS_QUERY })
+  const transformations = (await sanityFetch<Transformation[]>({ query: TRANSFORMATIONS_QUERY })) || []
 
   return (
     <Section className="bg-black border-y border-white/5">

@@ -14,7 +14,7 @@ export const metadata = {
 const PRICING_QUERY = `*[_type == "pricingTier"] | order(price asc)`
 
 export default async function PricingPage() {
-  const plans = await sanityFetch<PricingTier[]>({ query: PRICING_QUERY })
+  const plans = (await sanityFetch<PricingTier[]>({ query: PRICING_QUERY })) || []
 
   return (
     <div className="pt-20">

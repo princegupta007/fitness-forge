@@ -10,7 +10,7 @@ import { ArrowRight } from 'lucide-react'
 const PROGRAMS_QUERY = `*[_type == "program"][0...3]`
 
 export default async function ProgramsTeaser() {
-  const programs = await sanityFetch<Program[]>({ query: PROGRAMS_QUERY })
+  const programs = (await sanityFetch<Program[]>({ query: PROGRAMS_QUERY })) || []
 
   return (
     <Section className="bg-black">
