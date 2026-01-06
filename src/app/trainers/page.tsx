@@ -12,7 +12,7 @@ export const metadata = {
 const ALL_TRAINERS_QUERY = `*[_type == "trainer"] | order(name asc)`
 
 export default async function TrainersPage() {
-  const trainers = await sanityFetch<Trainer[]>({ query: ALL_TRAINERS_QUERY })
+  const trainers = (await sanityFetch<Trainer[]>({ query: ALL_TRAINERS_QUERY })) || []
 
   return (
     <div className="pt-20">

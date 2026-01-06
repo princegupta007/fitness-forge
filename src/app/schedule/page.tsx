@@ -20,7 +20,7 @@ const SCHEDULE_QUERY = `*[_type == "scheduleEntry"]{
 const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
 
 export default async function SchedulePage() {
-  const scheduleData = await sanityFetch<ScheduleEntry[]>({ query: SCHEDULE_QUERY })
+  const scheduleData = (await sanityFetch<ScheduleEntry[]>({ query: SCHEDULE_QUERY })) || []
 
   const groupedSchedule = DAYS.reduce(
     (acc, day) => {

@@ -14,7 +14,7 @@ export const metadata = {
 const ALL_TRANSFORMATIONS_QUERY = `*[_type == "transformation"]`
 
 export default async function GalleryPage() {
-  const transformations = await sanityFetch<Transformation[]>({ query: ALL_TRANSFORMATIONS_QUERY })
+  const transformations = (await sanityFetch<Transformation[]>({ query: ALL_TRANSFORMATIONS_QUERY })) || []
 
   return (
     <div className="pt-20">
