@@ -2,86 +2,75 @@ import { sanityFetch } from '@/sanity/lib/client'
 import { Section, Container } from '@/components/ui/Section'
 import SectionHeader from '@/components/ui/SectionHeader'
 import { Transformation } from '@/types/sanity'
+import TransformationGallery from '@/components/ui/TransformationGallery'
 import Image from 'next/image'
 import { urlFor } from '@/sanity/lib/client'
 
 export const metadata = {
-    title: 'Transformation Gallery | FITNESS FORGE',
-    description: 'See the real-life results of our dedicated members and athletes.',
+  title: 'Success Gallery | FITNESS FORGE',
+  description: 'Witness the incredible transformations of our members at FITNESS FORGE.',
 }
 
-const TRANSFORMATIONS_QUERY = `*[_type == "transformation"]`
+const ALL_TRANSFORMATIONS_QUERY = `*[_type == "transformation"]`
 
 export default async function GalleryPage() {
-    const transformations = await sanityFetch<Transformation[]>({ query: TRANSFORMATIONS_QUERY })
+  const transformations = await sanityFetch<Transformation[]>({ query: ALL_TRANSFORMATIONS_QUERY })
 
-    return (
-        <div className="pt-20">
-            <Section className="bg-black">
-                <Container>
-                    <SectionHeader
-                        subtitle="Results"
-                        title="The Gallery of Forge"
-                        description="Transformation isn't just about the mirror. These stories represent dedication, consistency, and the power of elite training."
-                    />
+  return (
+    <div className="pt-20">
+      <Section className="bg-black">
+        <Container>
+          <SectionHeader
+            centered
+            subtitle="Hall of Fame"
+            title="The results of hard work"
+            description="Explore the transformations of our dedicated members. Every success story here started with a single decision to show up."
+          />
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20">
-                        {transformations.length > 0 ? (
-                            transformations.map((item) => (
-                                <div key={item._id} className="group overflow-hidden">
-                                    <div className="grid grid-cols-2 gap-2 mb-6">
-                                        <div className="relative aspect-3/4 overflow-hidden bg-surface">
-                                            <Image
-                                                src={urlFor(item.beforeImage).url()}
-                                                alt="Before"
-                                                fill
-                                                className="object-cover transition-transform duration-500 group-hover:scale-105"
-                                            />
-                                            <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1 text-[8px] font-black uppercase tracking-widest border border-white/10">
-                                                Before
-                                            </div>
-                                        </div>
-                                        <div className="relative aspect-3/4 overflow-hidden bg-surface">
-                                            <Image
-                                                src={urlFor(item.afterImage).url()}
-                                                alt="After"
-                                                fill
-                                                className="object-cover border-l-2 border-accent transition-transform duration-500 group-hover:scale-105"
-                                            />
-                                            <div className="absolute top-4 right-4 bg-accent px-3 py-1 text-[8px] font-black uppercase tracking-widest">
-                                                After
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <h3 className="text-xl font-black italic uppercase tracking-wider text-white text-center group-hover:text-accent transition-colors">
-                                        &ldquo;{item.caption}&rdquo;
-                                    </h3>
-                                </div>
-                            ))
-                        ) : (
-                            <div className="col-span-full py-20 text-center border border-dashed border-white/10 text-slate-500">
-                                No transformations found.
-                            </div>
-                        )}
-                    </div>
-                </Container>
-            </Section>
+          <div className="mt-16">
+            {transformations.length > 0 ? (
+              <TransformationGallery transformations={transformations} />
+            ) : (
+              <div className="py-20 text-center border border-dashed border-white/10 text-slate-500">
+                No transformations found yet. Check back soon for more success stories.
+              </div>
+            )}
+          </div>
+        </Container>
+      </Section>
 
-            {/* Motivation Section */}
-            <Section className="bg-accent">
-                <Container className="text-center">
-                    <h2 className="text-4xl md:text-6xl font-black text-white mb-8 leading-tight uppercase">
-                        YOUR STORY STARTS <br />
-                        <span className="text-black">WITH THE FIRST STEP</span>
-                    </h2>
-                    <p className="text-white/80 text-lg md:text-xl font-medium max-w-2xl mx-auto mb-12">
-                        Don&apos;t wait for the &ldquo;perfect time&rdquo;. The perfect time is now. Join our community and forge your own transformation.
-                    </p>
-                    <a href="/contact" className="btn-secondary bg-white text-accent border-none hover:bg-slate-100 px-16 py-6 text-xl">
-                        Start Today
-                    </a>
-                </Container>
-            </Section>
-        </div>
-    )
+      {/* Atmosphere Grid */}
+      <Section className="bg-surface border-t border-white/5">
+        <Container>
+          <SectionHeader
+            subtitle="The Forge"
+            title="Our Atmosphere"
+            description="More than just a gym. Experience the intensity and community that defines FITNESS FORGE."
+          />
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?q=80&w=2070&auto=format&fit=crop',
+              'https://images.unsplash.com/photo-1571902251103-d71b46324837?q=80&w=2070&auto=format&fit=crop',
+              'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=2070&auto=format&fit=crop',
+              'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?q=80&w=2069&auto=format&fit=crop',
+              'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=2070&auto=format&fit=crop',
+              'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?q=80&w=1974&auto=format&fit=crop',
+              'https://images.unsplash.com/photo-1534367507873-d2b7e24959ac?q=80&w=2070&auto=format&fit=crop',
+              'https://images.unsplash.com/photo-1574680096145-d05b474e2155?q=80&w=2069&auto=format&fit=crop',
+            ].map((src, i) => (
+              <div key={i} className="relative aspect-square overflow-hidden group">
+                <img
+                  src={src}
+                  alt={`Fitness Forge atmosphere ${i + 1}`}
+                  className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500 scale-100 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-black/40 group-hover:opacity-0 transition-opacity" />
+              </div>
+            ))}
+          </div>
+        </Container>
+      </Section>
+    </div>
+  )
 }

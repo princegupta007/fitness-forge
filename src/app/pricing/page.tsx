@@ -1,75 +1,131 @@
 import { sanityFetch } from '@/sanity/lib/client'
 import { Section, Container } from '@/components/ui/Section'
 import SectionHeader from '@/components/ui/SectionHeader'
-import PricingCard from '@/components/ui/PricingCard'
 import { PricingTier } from '@/types/sanity'
-import { Check, ShieldCheck, Zap, Trophy } from 'lucide-react'
+import { Check, ArrowRight } from 'lucide-react'
+import Link from 'next/link'
+import { cn } from '@/lib/utils'
 
 export const metadata = {
-    title: 'Pricing | FITNESS FORGE',
-    description: 'Flexible membership tiers designed for every fitness level and goal.',
+  title: 'Pricing Plans | FITNESS FORGE',
+  description: 'Choose the membership plan that best fits your fitness goals and budget.',
 }
 
 const PRICING_QUERY = `*[_type == "pricingTier"] | order(price asc)`
 
 export default async function PricingPage() {
-    const tiers = await sanityFetch<PricingTier[]>({ query: PRICING_QUERY })
+  const plans = await sanityFetch<PricingTier[]>({ query: PRICING_QUERY })
 
-    return (
-        <div className="pt-20">
-            <Section className="bg-black">
-                <Container>
-                    <SectionHeader
-                        centered
-                        subtitle="Memberships"
-                        title="Forging Value"
-                        description="Choose the tier that fits your ambition. No hidden fees, no long-term contracts. Just results."
-                    />
+  return (
+    <div className="pt-20">
+      <Section className="bg-black">
+        <Container>
+          <SectionHeader
+            centered
+            subtitle="Membership"
+            title="Investment in yourself"
+            description="Transparent pricing with no hidden fees. Choose the plan that fits your ambition and start your transformation today."
+          />
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
-                        {tiers.length > 0 ? (
-                            tiers.map((tier) => (
-                                <PricingCard key={tier._id} tier={tier} />
-                            ))
-                        ) : (
-                            <div className="col-span-full py-20 text-center border border-dashed border-white/10 text-slate-500">
-                                No pricing tiers found.
-                            </div>
-                        )}
-                    </div>
-                </Container>
-            </Section>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch pt-12">
+            {plans.map((plan) => (
+              <div
+                key={plan._id}
+                className={cn(
+                  'relative flex flex-col p-8 md:p-12 border transition-all duration-300',
+                  plan.highlight
+                    ? 'bg-surface border-accent shadow-[0_0_40px_-10px_rgba(255,51,51,0.3)] scale-105 z-10'
+                    : 'bg-surface/50 border-white/5 hover:border-white/10'
+                )}
+              >
+                {plan.highlight && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-accent px-4 py-1 text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap">
+                    Most Popular
+                  </div>
+                )}
 
-            {/* Features Table / Comparison */}
-            <Section className="bg-surface border-t border-white/5">
-                <Container>
-                    <div className="max-w-4xl mx-auto">
-                        <SectionHeader
-                            centered
-                            subtitle="The Standard"
-                            title="Included in Every Plan"
-                            description="Regardless of your membership, you get full access to our world-class culture and fundamental amenities."
-                        />
+                <div className="mb-8">
+                  <h3 className="text-xl font-black uppercase tracking-widest mb-4">{plan.name}</h3>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-4xl font-black text-white">$</span>
+                    <span className="text-6xl font-black text-white">{plan.price}</span>
+                    <span className="text-slate-500 font-bold uppercase tracking-widest text-xs">
+                      /month
+                    </span>
+                  </div>
+                </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            {[
-                                { icon: <ShieldCheck className="text-accent" />, title: 'Elite Community', desc: 'Secure and respectful environment for all members.' },
-                                { icon: <Zap className="text-accent" />, title: 'Premium Gear', desc: 'Access to Hammer Strength and Eleiko equipment.' },
-                                { icon: <Trophy className="text-accent" />, title: 'Performance Tracking', desc: 'Complimentary usage of our progress tracking app.' },
-                                { icon: <Check className="text-accent" />, title: 'Free WiFi', desc: 'High-speed internet throughout the facility.' },
-                            ].map((feature, i) => (
-                                <div key={i} className="flex gap-6 p-8 bg-black/40 border border-white/5">
-                                    <div className="shrink-0">{feature.icon}</div>
-                                    <div>
-                                        <h4 className="font-black uppercase tracking-widest mb-2">{feature.title}</h4>
-                                        <p className="text-slate-500 text-sm">{feature.desc}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </Container>
-            </Section>
-        </div>
-    )
+                <ul className="space-y-4 mb-12 flex-1">
+                  {plan.features.map((feature, i) => (
+                    <li key={i} className="flex gap-3 text-slate-300 font-medium text-sm">
+                      <Check className="text-accent shrink-0" size={18} />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+
+                <Link
+                  href="/contact"
+                  className={cn(
+                    'w-full py-4 px-6 text-center font-black uppercase tracking-widest text-sm transition-all flex items-center justify-center gap-2 group',
+                    plan.highlight
+                      ? 'bg-accent text-white hover:bg-red-700'
+                      : 'bg-white/5 text-white hover:bg-white/10'
+                  )}
+                >
+                  {plan.ctaText || 'Get Started'}
+                  <ArrowRight
+                    size={16}
+                    className="group-hover:translate-x-1 transition-transform"
+                  />
+                </Link>
+              </div>
+            ))}
+          </div>
+        </Container>
+      </Section>
+
+      {/* FAQ Summary */}
+      <Section className="bg-surface border-t border-white/5">
+        <Container>
+          <div className="max-w-4xl mx-auto">
+            <SectionHeader
+              centered
+              subtitle="Common Questions"
+              title="Frequently Asked"
+              description="Everything you need to know about our memberships and services."
+            />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mt-12">
+              {[
+                {
+                  q: 'Can I cancel anytime?',
+                  a: 'Yes, our monthly memberships are flexible. You can cancel with a 30-day notice.',
+                },
+                {
+                  q: 'Do you offer student discounts?',
+                  a: 'We offer special rates for students and first responders. Contact us with your ID.',
+                },
+                {
+                  q: 'Is personal training included?',
+                  a: 'Elite plans include 2 sessions per month. Other plans can add sessions as needed.',
+                },
+                {
+                  q: 'Do you have locker rooms?',
+                  a: 'Yes, we provide full-service locker rooms with showers, towels, and dry saunas.',
+                },
+              ].map((faq, i) => (
+                <div key={i}>
+                  <h4 className="text-white font-bold uppercase tracking-wider mb-3 flex gap-3">
+                    <span className="text-accent">Q:</span> {faq.q}
+                  </h4>
+                  <p className="text-slate-400 text-sm leading-relaxed pl-8">{faq.a}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Container>
+      </Section>
+    </div>
+  )
 }

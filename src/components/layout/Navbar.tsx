@@ -6,101 +6,110 @@ import { usePathname } from 'next/navigation'
 import { Menu, X, Dumbbell } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-const navLinks = [
-    { name: 'Programs', href: '/programs' },
-    { name: 'Trainers', href: '/trainers' },
-    { name: 'Pricing', href: '/pricing' },
-    { name: 'Schedule', href: '/schedule' },
-    { name: 'Gallery', href: '/gallery' },
-    { name: 'Contact', href: '/contact' },
+const NAV_LINKS = [
+  { name: 'Home', href: '/' },
+  { name: 'Programs', href: '/programs' },
+  { name: 'Trainers', href: '/trainers' },
+  { name: 'Pricing', href: '/pricing' },
+  { name: 'Schedule', href: '/schedule' },
+  { name: 'Gallery', href: '/gallery' },
+  { name: 'Contact', href: '/contact' },
 ]
 
 export default function Navbar() {
-    const [isOpen, setIsOpen] = useState(false)
-    const [scrolled, setScrolled] = useState(false)
-    const pathname = usePathname()
+  const [isOpen, setIsOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+  const pathname = usePathname()
 
-    useEffect(() => {
-        const handleScroll = () => {
-            setScrolled(window.scrollY > 20)
-        }
-        window.addEventListener('scroll', handleScroll)
-        return () => window.removeEventListener('scroll', handleScroll)
-    }, [])
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20)
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
-    return (
-        <nav
-            className={cn(
-                'fixed top-0 w-full z-50 transition-all duration-300',
-                scrolled ? 'bg-black/80 backdrop-blur-md py-4' : 'bg-transparent py-6'
-            )}
-        >
-            <div className="container mx-auto px-6 flex justify-between items-center">
-                <Link href="/" className="flex items-center gap-2 group">
-                    <Dumbbell className="w-8 h-8 text-accent group-hover:rotate-12 transition-transform" />
-                    <span className="text-2xl font-black tracking-tighter">
-                        FITNESS<span className="text-accent">FORGE</span>
-                    </span>
-                </Link>
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsOpen(false)
+  }, [pathname])
 
-                {/* Desktop Nav */}
-                <div className="hidden md:flex items-center gap-8">
-                    {navLinks.map((link) => (
-                        <Link
-                            key={link.name}
-                            href={link.href}
-                            className={cn(
-                                'text-sm font-bold uppercase tracking-widest hover:text-accent transition-colors',
-                                pathname === link.href ? 'text-accent' : 'text-foreground'
-                            )}
-                        >
-                            {link.name}
-                        </Link>
-                    ))}
-                    <Link href="/contact" className="btn-primary py-2 px-4 text-sm">
-                        Join Now
-                    </Link>
-                </div>
-
-                {/* Mobile Toggle */}
-                <button
-                    className="md:hidden text-foreground"
-                    onClick={() => setIsOpen(!isOpen)}
-                >
-                    {isOpen ? <X size={32} /> : <Menu size={32} />}
-                </button>
+  return (
+    <nav
+      className={cn(
+        'fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b',
+        scrolled
+          ? 'bg-black/80 backdrop-blur-xl border-white/10 py-4'
+          : 'bg-transparent border-transparent py-6'
+      )}
+    >
+      <div className="container mx-auto px-4 md:px-6">
+        <div className="flex items-center justify-between">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="bg-accent p-1.5 rounded-lg group-hover:rotate-12 transition-transform">
+              <Dumbbell size={24} className="text-white" />
             </div>
+            <span className="text-2xl font-black uppercase tracking-tighter text-white">
+              Fitness<span className="text-accent">Forge</span>
+            </span>
+          </Link>
 
-            {/* Mobile Nav */}
-            <div
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center gap-8">
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
                 className={cn(
-                    'absolute top-full left-0 w-full bg-black border-b border-white/10 transition-all duration-300 md:hidden overflow-hidden',
-                    isOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'
+                  'text-sm font-bold uppercase tracking-widest transition-colors hover:text-accent',
+                  pathname === link.href ? 'text-accent' : 'text-slate-300'
                 )}
+              >
+                {link.name}
+              </Link>
+            ))}
+          </div>
+
+          {/* Mobile Menu Toggle */}
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="md:hidden p-2 text-white hover:bg-white/5 rounded-lg transition-colors"
+            aria-expanded={isOpen}
+            aria-controls="mobile-menu"
+            aria-label={isOpen ? 'Close menu' : 'Open menu'}
+          >
+            {isOpen ? <X size={28} /> : <Menu size={28} />}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Navigation Overlay */}
+      <div
+        id="mobile-menu"
+        className={cn(
+          'fixed inset-0 top-[73px] bg-black z-40 md:hidden transition-all duration-500 ease-in-out',
+          isOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-4'
+        )}
+      >
+        <div className="flex flex-col items-center justify-center h-full gap-8 p-6">
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={cn(
+                'text-3xl font-black uppercase tracking-tighter transition-colors',
+                pathname === link.href ? 'text-accent' : 'text-white'
+              )}
             >
-                <div className="flex flex-col gap-6 p-8 items-center">
-                    {navLinks.map((link) => (
-                        <Link
-                            key={link.name}
-                            href={link.href}
-                            onClick={() => setIsOpen(false)}
-                            className={cn(
-                                'text-xl font-bold uppercase tracking-widest',
-                                pathname === link.href ? 'text-accent' : 'text-foreground'
-                            )}
-                        >
-                            {link.name}
-                        </Link>
-                    ))}
-                    <Link
-                        href="/contact"
-                        onClick={() => setIsOpen(false)}
-                        className="btn-primary w-full text-center"
-                    >
-                        Join Now
-                    </Link>
-                </div>
-            </div>
-        </nav>
-    )
+              {link.name}
+            </Link>
+          ))}
+          <Link href="/contact" className="mt-4 btn-primary w-full py-6 text-xl">
+            Start Your Journey
+          </Link>
+        </div>
+      </div>
+    </nav>
+  )
 }

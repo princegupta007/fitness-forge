@@ -1,146 +1,149 @@
 'use client'
 
-import { useState } from 'react'
-import { sendEmail } from '@/app/actions/sendEmail'
-import { CheckCircle2, AlertCircle, Loader2 } from 'lucide-react'
+import { useActionState, useTransition } from 'react'
+import { sendEmail, type ActionState } from '@/app/actions/sendEmail'
+import { AlertCircle, CheckCircle2, Loader2, Send } from 'lucide-react'
+import { cn } from '@/lib/utils'
+
+const initialState: ActionState = {
+  success: false,
+  message: '',
+  error: undefined,
+}
 
 export default function ContactForm() {
-    const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
-    const [errorMessage, setErrorMessage] = useState('')
+  const [state, action, isPending] = useActionState(sendEmail, initialState)
 
-    async function handleSubmit(formData: FormData) {
-        setStatus('loading')
-        const result = await sendEmail(formData)
+  return (
+    <div className="bg-surface border border-white/5 p-8 md:p-12 rounded-2xl shadow-2xl">
+      <h3 className="text-3xl font-black uppercase mb-8 tracking-tight">
+        Send Us a <span className="text-accent">Message</span>
+      </h3>
 
-        if (result.error) {
-            setStatus('error')
-            setErrorMessage(result.error)
-        } else {
-            setStatus('success')
-        }
-    }
-
-    if (status === 'success') {
-        return (
-            <div className="bg-surface border border-accent/20 p-12 text-center flex flex-col items-center gap-6">
-                <CheckCircle2 className="text-accent w-16 h-16" />
-                <div>
-                    <h3 className="text-3xl font-black uppercase mb-4">Message Forged!</h3>
-                    <p className="text-slate-400">
-                        Thank you for reaching out. A member of our team will contact you within 24 hours to schedule your session.
-                    </p>
-                </div>
-                <button
-                    onClick={() => setStatus('idle')}
-                    className="btn-secondary mt-4"
-                >
-                    Send Another Message
-                </button>
+      {state.success ? (
+        <div className="bg-emerald-500/10 border border-emerald-500/20 p-6 rounded-xl flex gap-4 items-center">
+          <CheckCircle2 className="text-emerald-500 shrink-0" size={32} />
+          <div>
+            <h4 className="text-white font-bold text-lg">Message Sent!</h4>
+            <p className="text-emerald-500/80 font-medium">
+              Thanks for reaching out. We'll get back to you within 24 hours.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <form action={action} className="space-y-6">
+          {state.message && !state.success && (
+            <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl flex gap-3 items-center text-red-500 mb-6">
+              <AlertCircle size={20} />
+              <p className="font-semibold">
+                {state.message}
+              </p>
             </div>
-        )
-    }
+          )}
 
-    return (
-        <form action={handleSubmit} className="space-y-6 bg-surface border border-white/5 p-8 md:p-12">
-            {status === 'error' && (
-                <div className="bg-red-500/10 border border-red-500/20 p-4 text-red-500 flex items-center gap-3 text-sm">
-                    <AlertCircle size={20} />
-                    <span>{errorMessage}</span>
-                </div>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                    <label htmlFor="name" className="text-xs font-black uppercase tracking-widest text-slate-500">
-                        Full Name <span className="text-accent">*</span>
-                    </label>
-                    <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        required
-                        className="w-full bg-black border border-white/10 px-4 py-3 focus:border-accent outline-none transition-colors text-white"
-                        placeholder="John Doe"
-                    />
-                </div>
-                <div className="space-y-2">
-                    <label htmlFor="email" className="text-xs font-black uppercase tracking-widest text-slate-500">
-                        Email Address <span className="text-accent">*</span>
-                    </label>
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        required
-                        className="w-full bg-black border border-white/10 px-4 py-3 focus:border-accent outline-none transition-colors text-white"
-                        placeholder="john@example.com"
-                    />
-                </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                    <label htmlFor="phone" className="text-xs font-black uppercase tracking-widest text-slate-500">
-                        Phone Number
-                    </label>
-                    <input
-                        type="tel"
-                        id="phone"
-                        name="phone"
-                        className="w-full bg-black border border-white/10 px-4 py-3 focus:border-accent outline-none transition-colors text-white"
-                        placeholder="+1 (555) 000-0000"
-                    />
-                </div>
-                <div className="space-y-2">
-                    <label htmlFor="preferredTime" className="text-xs font-black uppercase tracking-widest text-slate-500">
-                        Preferred Contact Time
-                    </label>
-                    <select
-                        id="preferredTime"
-                        name="preferredTime"
-                        className="w-full bg-black border border-white/10 px-4 py-3 focus:border-accent outline-none transition-colors text-white appearance-none"
-                    >
-                        <option value="anytime">Anytime</option>
-                        <option value="morning">Morning (5AM - 11AM)</option>
-                        <option value="afternoon">Afternoon (11AM - 4PM)</option>
-                        <option value="evening">Evening (4PM - 10PM)</option>
-                    </select>
-                </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label
+                htmlFor="name"
+                className="text-sm font-bold uppercase tracking-wider text-slate-400 ml-1"
+              >
+                Full Name
+              </label>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                required
+                minLength={2}
+                maxLength={100}
+                defaultValue={(state?.fields?.name as string) || ''}
+                placeholder="John Doe"
+                className="w-full bg-black/40 border border-white/10 rounded-xl px-6 py-4 focus:outline-hidden focus:border-accent focus:ring-1 focus:ring-accent transition-all placeholder:text-slate-600 font-medium"
+              />
+              {state?.error && typeof state.error === 'object' && state.error.name && (
+                <p className="text-red-500 text-xs font-bold mt-1 ml-1 uppercase">
+                  {state.error.name[0]}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
-                <label htmlFor="message" className="text-xs font-black uppercase tracking-widest text-slate-500">
-                    Message <span className="text-accent">*</span>
-                </label>
-                <textarea
-                    id="message"
-                    name="message"
-                    required
-                    rows={4}
-                    className="w-full bg-black border border-white/10 px-4 py-3 focus:border-accent outline-none transition-colors text-white resize-none"
-                    placeholder="Tell us about your fitness goals..."
-                />
+              <label
+                htmlFor="email"
+                className="text-sm font-bold uppercase tracking-wider text-slate-400 ml-1"
+              >
+                Email Address
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                defaultValue={(state?.fields?.email as string) || ''}
+                placeholder="john@example.com"
+                className="w-full bg-black/40 border border-white/10 rounded-xl px-6 py-4 focus:outline-hidden focus:border-accent focus:ring-1 focus:ring-accent transition-all placeholder:text-slate-600 font-medium"
+              />
+              {state?.error && typeof state.error === 'object' && state.error.email && (
+                <p className="text-red-500 text-xs font-bold mt-1 ml-1 uppercase">
+                  {state.error.email[0]}
+                </p>
+              )}
             </div>
+          </div>
 
-            <button
-                type="submit"
-                disabled={status === 'loading'}
-                className="btn-primary w-full py-5 flex items-center justify-center gap-3 disabled:opacity-70"
+          <div className="space-y-2">
+            <label
+              htmlFor="message"
+              className="text-sm font-bold uppercase tracking-wider text-slate-400 ml-1"
             >
-                {status === 'loading' ? (
-                    <>
-                        <Loader2 className="animate-spin" size={20} />
-                        Sending...
-                    </>
-                ) : (
-                    'Send Message'
-                )}
-            </button>
+              Your Message
+            </label>
+            <textarea
+              id="message"
+              name="message"
+              required
+              minLength={10}
+              maxLength={1000}
+              defaultValue={(state?.fields?.message as string) || ''}
+              rows={6}
+              placeholder="Tell us about your fitness goals..."
+              className="w-full bg-black/40 border border-white/10 rounded-xl px-6 py-4 focus:outline-hidden focus:border-accent focus:ring-1 focus:ring-accent transition-all placeholder:text-slate-600 font-medium resize-none"
+            />
+            {state?.error && typeof state.error === 'object' && state.error.message && (
+              <p className="text-red-500 text-xs font-bold mt-1 ml-1 uppercase">
+                {state.error.message[0]}
+              </p>
+            )}
+          </div>
 
-            <p className="text-[10px] text-slate-500 text-center uppercase tracking-widest leading-relaxed">
-                By submitting this form, you agree to receive fitness Forge communications. <br />
-                We respect your privacy and will never share your information.
-            </p>
+          {/* Honeypot */}
+          <div className="hidden">
+            <label htmlFor="website">Website</label>
+            <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
+          </div>
+
+          <button
+            type="submit"
+            disabled={isPending}
+            className="btn-primary w-full py-5 text-lg flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed group"
+          >
+            {isPending ? (
+              <>
+                <Loader2 className="animate-spin" size={24} />
+                Processing...
+              </>
+            ) : (
+              <>
+                Send Message{' '}
+                <Send
+                  size={20}
+                  className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"
+                />
+              </>
+            )}
+          </button>
         </form>
-    )
+      )}
+    </div>
+  )
 }
