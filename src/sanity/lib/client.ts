@@ -2,7 +2,7 @@ import { createClient } from 'next-sanity'
 import { createImageUrlBuilder } from '@sanity/image-url'
 import { SanityImage, SiteSettings } from '@/types/sanity'
 
-const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'MISSING_PROJECT_ID'
+const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'unconfigured'
 const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production'
 
 export const client = createClient({
@@ -27,7 +27,7 @@ export async function sanityFetch<QueryResponse>({
   params?: Record<string, unknown>
   tags?: string[]
 }) {
-  if (projectId === 'MISSING_PROJECT_ID') {
+  if (projectId === 'unconfigured') {
     throw new Error('NEXT_PUBLIC_SANITY_PROJECT_ID is not configured')
   }
 
