@@ -1,45 +1,45 @@
-import { defineField, defineType } from "sanity";
+import { defineField, defineType } from 'sanity'
 
 export default defineType({
-  name: "program",
-  title: "Program",
-  type: "document",
+  name: 'program',
+  title: 'Program',
+  type: 'document',
   fields: [
     defineField({
-      name: "title",
-      title: "Title",
-      type: "string",
+      name: 'title',
+      title: 'Title',
+      type: 'string',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: "slug",
-      title: "Slug",
-      type: "slug",
+      name: 'slug',
+      title: 'Slug',
+      type: 'slug',
       options: {
-        source: "title",
+        source: 'title',
         maxLength: 96,
       },
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: "description",
-      title: "Description",
-      type: "text",
+      name: 'description',
+      title: 'Description',
+      type: 'text',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: "suitableFor",
-      title: "Suitable For",
-      type: "string",
-      description: "e.g., Beginners, Advanced Athletes, All levels",
+      name: 'suitableFor',
+      title: 'Suitable For',
+      type: 'string',
+      description: 'e.g., Beginners, Advanced Athletes, All levels',
     }),
     defineField({
-      name: "image",
-      title: "Image",
-      type: "image",
+      name: 'image',
+      title: 'Image',
+      type: 'image',
       options: {
         hotspot: true,
       },
     }),
   ],
-});
+})

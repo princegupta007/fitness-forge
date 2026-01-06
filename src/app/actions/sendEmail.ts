@@ -1,53 +1,69 @@
-"use server";
+'use server'
 
-import { Resend } from "resend";
+import { Resend } from 'resend'
+import { ContactFormSchema } from '@/lib/validations/contact'
 
-const resend = process.env.RESEND_API_KEY
-  ? new Resend(process.env.RESEND_API_KEY)
-  : null;
+const resend = new Resend(process.env.RESEND_API_KEY)
 
-export async function sendEmail(formData: FormData) {
-  const name = formData.get("name") as string;
-  const email = formData.get("email") as string;
-  const phone = formData.get("phone") as string;
-  const message = formData.get("message") as string;
-  const preferredTime = formData.get("preferredTime") as string;
+export type ActionState = {
+  success: boolean
+  error?: string | Record<string, string[]>
+  message: string
+  fields?: Record<string, any>
+}
 
-  if (!name || !email || !message) {
-    return { error: "Missing required fields" };
+export async function sendEmail(prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const rawData = {
+    name: formData.get('name') as string,
+    email: formData.get('email') as string,
+    message: formData.get('message') as string,
+    website: formData.get('website') as string,
   }
 
-  if (!resend) {
-    console.error("Missing RESEND_API_KEY environment variable");
+  const validatedFields = ContactFormSchema.safeParse(rawData)
+
+  if (!validatedFields.success) {
     return {
-      error:
-        "Email service is not configured. Please add RESEND_API_KEY to .env.local",
-    };
+      success: false,
+      error: validatedFields.error.flatten().fieldErrors,
+      message: 'Invalid form data. Please check the fields.',
+      fields: rawData,
+    }
+  }
+
+  const { name, email, message, website } = validatedFields.data
+
+  // Basic honeypot check
+  if (website) {
+    return { success: true, message: 'Message sent successfully' }
+  }
+
+  if (!process.env.RESEND_API_KEY || !process.env.CONTACT_EMAIL) {
+    const missing = !process.env.RESEND_API_KEY ? 'RESEND_API_KEY' : 'CONTACT_EMAIL'
+    return {
+      success: false,
+      error: `Email service is not configured: missing ${missing}`,
+      message: 'Email service is not configured',
+      fields: rawData,
+    }
   }
 
   try {
-    const { data, error } = await resend.emails.send({
-      from: "Fitness Forge <onboarding@resend.dev>",
-      to: process.env.CONTACT_EMAIL || "info@fitnessforge.com",
-      subject: `New Lead: ${name} - Trial Request`,
+    await resend.emails.send({
+      from: 'Fitness Forge <onboarding@resend.dev>',
+      to: process.env.CONTACT_EMAIL,
+      subject: `New Message from ${name}`,
       replyTo: email,
-      html: `
-        <h2>New lead from fitnessforge.com</h2>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Phone:</strong> ${phone || "Not provided"}</p>
-        <p><strong>Preferred Contact Time:</strong> ${preferredTime || "Not provided"}</p>
-        <p><strong>Message:</strong></p>
-        <p>${message}</p>
-      `,
-    });
+      text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
+    })
 
-    if (error) {
-      return { error: error.message };
+    return { success: true, message: 'Message sent successfully' }
+  } catch (error) {
+    return {
+      success: false,
+      error: 'Failed to send message. Please try again later.',
+      message: 'Failed to send message. Please try again later.',
+      fields: rawData,
     }
-
-    return { success: true };
-  } catch (err: any) {
-    return { error: err.message || "Something went wrong" };
   }
 }
