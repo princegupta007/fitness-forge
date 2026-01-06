@@ -1,12 +1,13 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import './globals.css'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import LocalBusinessSchema from '@/components/seo/LocalBusinessSchema'
 import { getSiteSettings } from '@/sanity/lib/client'
 
-const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800', '900'] })
+// Google Fonts fetch fails in some environments, using system fonts fallback
+// import { Inter } from 'next/font/google'
+// const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800', '900'] })
 
 export const metadata: Metadata = {
   title: "FITNESS FORGE | Iron City's Elite Gym",
@@ -24,7 +25,7 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning={true}>
       <head>{settings && <LocalBusinessSchema settings={settings} />}</head>
-      <body className={`${inter.className} bg-black text-white antialiased`}>
+      <body className={`bg-black text-white antialiased`}>
         <Navbar />
         <main>{children}</main>
         <Footer />
